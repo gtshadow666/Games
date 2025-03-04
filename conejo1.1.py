@@ -27,7 +27,7 @@ mira_img = pygame.transform.scale(mira_img,(mira_width, mira_height))
 conejo_x, conejo_y = random.randint(50, screen_width-80), random.randint(50, screen_height-80)
 
 # Velocidad del movimiento del conejo
-conejo_dx, conejo_dy = random.choice([-20, 20]), random.choice([-20, 20])  # Movimiento aleatorio en x e y
+conejo_dx, conejo_dy = random.choice([-10, 10]), random.choice([-10, 10])  # Movimiento aleatorio en x e y
 
 # Variables del juego
 puntos = 0
@@ -44,6 +44,7 @@ def mostrar_texto(texto, color, x, y):
     screen.blit(label, (x, y))
 
 # Bucle principal del juego
+delay_tiro=0
 running = True
 while running:
 
@@ -70,9 +71,10 @@ while running:
         conejo_dy = -conejo_dy  # Cambia la dirección vertical
 
     # Disparar
-    if pygame.mouse.get_pressed()[0]:  # Si se presiona el botón izquierdo del ratón
+    if pygame.mouse.get_pressed()[0]   and delay_tiro >= 120:  # Si se presiona el botón izquierdo del ratón
         distancia = ((mouse_x - (conejo_x + conejo_width // 2)) ** 2 + (mouse_y - (conejo_y + conejo_height // 2)) ** 2) ** 0.5
         tiros += 1
+        delay_tiro=0
         if distancia < 20:  # Si el tiro está cerca del conejo
             conejo_x, conejo_y = random.randint(50, screen_width-80), random.randint(50, screen_height-80)  # Nueva posición aleatoria
             puntos += 1  # Aumenta el contador de puntos
@@ -82,13 +84,15 @@ while running:
     mostrar_texto(f'Puntos: {puntos}', BLACK, 10, 10)
     punteria= 100 if tiros ==0 else puntos/tiros *100
     mostrar_texto(f'punteria:{round(punteria)}%', BLACK ,10, 50)
+
     # Dibujar el conejo en la pantalla Y la mira la calibramos
     screen.blit(conejo_img, (conejo_x, conejo_y))
     screen.blit(mira_img,(mouse_x-100,mouse_y-86))
     # Actualizar la pantalla
     pygame.display.update()
-    
+    #Asi evitamos que el uusario pege titos todo el tiempo porque en cada fps se aumenta el delay y al llegar a 120 ya son 2 segundos si el juego va a 60 fps estables
+    delay_tiro+=1
     # Controlar FPS (24 frames por segundo)
-    clock.tick(24)
+    clock.tick(60)
 
 pygame.quit()
